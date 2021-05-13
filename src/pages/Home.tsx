@@ -18,22 +18,28 @@ import
 import './Home.css';
 
 /* side effects, state, and persistence */
-import { Database, Storage } from '@ionic/storage';
+import { Database, Drivers, Storage } from '@ionic/storage';
 import { useEffect, useState } from 'react';
+
+const storageSettings = {
+  driverOrder: [Drivers.LocalStorage],
+}
 
 type Item = {
   text: string,
   checked: boolean,
 };
 
-const TodoItem = ({ key }: { key: string }) => {
-  //FIXME WHY IS key UNDEFINED????
+interface TodoProps {
+  name: string,
+};
 
+const TodoItem = ({ name }: TodoProps) => {
   // initialize store
   const [store, setStore] = useState<Database | null>(null);
   useEffect(() => {
     async function initStore() {
-      const store = await new Storage().create();
+      const store = await new Storage(storageSettings).create();
       setStore(store);
       console.log("Initialized store");
     }
@@ -51,7 +57,7 @@ const TodoItem = ({ key }: { key: string }) => {
         console.log("Store not yet initialized");
         return;
       }
-      const item: Item = await store.get(key);
+      const item: Item = await store.get(name);
       setText(item.text);
       setChecked(item.checked);
       setInitialized(true); // to prevent store.set()s before we want them
@@ -68,7 +74,7 @@ const TodoItem = ({ key }: { key: string }) => {
         text: text,
         checked: checked,
       };
-      await store.set(key, item);
+      await store.set(name, item);
     }
 
     updateItem();
@@ -79,7 +85,7 @@ const TodoItem = ({ key }: { key: string }) => {
   } : {};
 
   return (
-    <IonItem>
+    <IonItem key={name}>
       <IonCheckbox
         checked={checked}
         onIonChange={e => setChecked(e.detail.checked)}
@@ -101,7 +107,7 @@ const Home = () => {
   const [store, setStore] = useState<Database | null>(null);
   useEffect(() => {
     async function initStore() {
-      const store = await new Storage().create();
+      const store = await new Storage(storageSettings).create();
       await store.clear();
       setStore(store);
 
@@ -133,17 +139,17 @@ const Home = () => {
     initStore();
   }, []); // empty means run once only
 
-  const [keys, setKeys] = useState<string[]>([]);
+  const [names, setNames] = useState<string[]>([]);
   useEffect(() => {
-    async function loadKeys() {
+    async function loadNames() {
       if (store === null) {
         console.log('Store not yet initialized');
         return;
       }
-      setKeys(await store.keys());
+      setNames(await store.keys());
     }
 
-    loadKeys();
+    loadNames();
   }, [store]);
 
   return (
@@ -153,7 +159,7 @@ const Home = () => {
       </IonHeader>
       <IonContent fullscreen>
         <IonList>
-          {keys.map(mikey => <TodoItem key={mikey} />)}
+          {names.map(name => <TodoItem name={name} />)}
         </IonList>
       </IonContent>
     </IonPage>
