@@ -4,6 +4,7 @@ import
 , IonContent
 , IonHeader
 , IonIcon
+, IonInput
 , IonItem
 , IonLabel
 , IonList
@@ -34,6 +35,25 @@ type TodoProps = {
   name: string,
   doParentUpdate: () => void,
 };
+
+function genUniqueName(text: string) {
+  const n = text.length;
+  // using java's hashCode algorithm
+  const hashCode = text
+    // split into characters
+    .split('')
+    // calc exponent
+    .map((ch, i) => [ch.charCodeAt(0), n - i - 1])
+    // sum terms
+    .reduce(
+      (a, [ch, p]) => a + ch * Math.pow(31, p),
+      0,
+    );
+  const timestamp = Date.now();
+  const salt = Math.random();
+
+  return `${timestamp}-${hashCode}-${salt}`;
+}
 
 const TodoItem = ({ name, doParentUpdate }: TodoProps) => {
   // initialize store
@@ -158,10 +178,35 @@ const Home = () => {
     setUpdateCount((updateCount + 1) % 10);
   };
 
+  // text input for adding new items
+  const [text, setText] = useState<string>("");
+  useEffect(() => {
+    async function addItem(text: string) {
+      const name = genUniqueName(text);
+      const item = {
+        text: text,
+        checked: false,
+      };
+      await store.set(name, item);
+      doUpdate();
+    }
+  });
+
   return (
     <IonPage>
       <IonHeader>
         <IonTitle>My To Do List</IonTitle>
+        <div>
+          <IonInput
+            value={text}
+            onIonChange={e => setText(e.detail.value!)}
+            clearInput
+            autocorrect="on"
+          ></IonInput>
+          <IonButton
+            expand="full"
+          />
+        </div>
       </IonHeader>
       <IonContent fullscreen>
         <IonList>
