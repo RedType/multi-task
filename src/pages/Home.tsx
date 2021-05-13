@@ -19,7 +19,7 @@ import './Home.css';
 
 /* side effects, state, and persistence */
 import { Database, Drivers, Storage } from '@ionic/storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 
 const storageSettings = {
   driverOrder: [Drivers.LocalStorage],
@@ -30,18 +30,18 @@ type Item = {
   checked: boolean,
 };
 
-interface TodoProps {
+type TodoProps = {
   name: string,
+  doParentUpdate: () => void,
 };
 
-const TodoItem = ({ name }: TodoProps) => {
+const TodoItem = ({ name, doParentUpdate }: TodoProps) => {
   // initialize store
   const [store, setStore] = useState<Database | null>(null);
   useEffect(() => {
     async function initStore() {
       const store = await new Storage(storageSettings).create();
       setStore(store);
-      console.log("Initialized store");
     }
 
     initStore();
@@ -53,23 +53,18 @@ const TodoItem = ({ name }: TodoProps) => {
   const [initialized, setInitialized] = useState<boolean>(false);
   useEffect(() => {
     async function loadItem() {
-      if (store === null) {
-        console.log("Store not yet initialized");
-        return;
-      }
       const item: Item = await store.get(name);
       setText(item.text);
       setChecked(item.checked);
       setInitialized(true); // to prevent store.set()s before we want them
     }
 
-    loadItem();
+    if (store !== null) loadItem();
   }, [store]);
 
   // persist data
   useEffect(() => {
     async function updateItem() {
-      if (!initialized) return;
       const item = {
         text: text,
         checked: checked,
@@ -77,8 +72,19 @@ const TodoItem = ({ name }: TodoProps) => {
       await store.set(name, item);
     }
 
-    updateItem();
+    if (initialized) updateItem();
   }, [checked, text, initialized]);
+
+  // remove self
+  const [delet, setDelet] = useState<boolean>(false);
+  useEffect(() => {
+    async function removeSelf() {
+      await store.remove(name);
+      doParentUpdate();
+    }
+
+    if (delet) removeSelf();
+  }, [delet]);
 
   const strike = checked ? {
     textDecoration: "line-through",
@@ -95,7 +101,7 @@ const TodoItem = ({ name }: TodoProps) => {
       <IonButton slot="end" fill="clear">
         <IonIcon slot="icon-only" icon={pencil} />
       </IonButton>
-      <IonButton slot="end" fill="clear">
+      <IonButton slot="end" fill="clear" onClick={() => setDelet(true)}>
         <IonIcon slot="icon-only" icon={trash} />
       </IonButton>
     </IonItem>
@@ -108,28 +114,27 @@ const Home = () => {
   useEffect(() => {
     async function initStore() {
       const store = await new Storage(storageSettings).create();
-      await store.clear();
       setStore(store);
 
       //FIXME temporary test entries
-      await Promise.all(
-      [ store.set('test1', {
+      if (true) await Promise.all(
+      [ store.set('begin', {
           text: 'Begin writing todo list',
           checked: true,
         })
-      , store.set('test2', {
+      , store.set('a million', {
           text: 'Make a million dollars',
           checked: false,
         })
-      , store.set('test3', {
+      , store.set('take over', {
           text: 'Take over the world',
           checked: false,
         })
-      , store.set('test4', {
+      , store.set('coffee', {
           text: 'Drink coffee',
           checked: true,
         })
-      , store.set('test5', {
+      , store.set('another', {
           text: 'Another one!',
           checked: false,
         })
@@ -140,17 +145,18 @@ const Home = () => {
   }, []); // empty means run once only
 
   const [names, setNames] = useState<string[]>([]);
+  const [updateCount, setUpdateCount] = useState<number>(0);
   useEffect(() => {
     async function loadNames() {
-      if (store === null) {
-        console.log('Store not yet initialized');
-        return;
-      }
       setNames(await store.keys());
     }
 
-    loadNames();
-  }, [store]);
+    if (store !== null) loadNames();
+  }, [store, updateCount]);
+
+  const doUpdate = () => {
+    setUpdateCount((updateCount + 1) % 10);
+  };
 
   return (
     <IonPage>
@@ -159,7 +165,7 @@ const Home = () => {
       </IonHeader>
       <IonContent fullscreen>
         <IonList>
-          {names.map(name => <TodoItem name={name} />)}
+          {names.map(name => <TodoItem key={name} name={name} doParentUpdate={doUpdate} />)}
         </IonList>
       </IonContent>
     </IonPage>
