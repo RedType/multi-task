@@ -27,6 +27,8 @@ type Item = {
 };
 
 const TodoItem = ({ key }: { key: string }) => {
+  //FIXME WHY IS key UNDEFINED????
+
   // initialize store
   const [store, setStore] = useState<Database | null>(null);
   useEffect(() => {
@@ -147,9 +149,7 @@ const Home = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Blank 1</IonTitle>
-        </IonToolbar>
+        <IonTitle>My To Do List</IonTitle>
       </IonHeader>
       <IonContent fullscreen>
         <IonList>
