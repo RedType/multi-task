@@ -1,0 +1,39 @@
+ion-toolbar {
+  --background: #6236ff;
+  text-align: center;
+  padding: 0;
+}
+
+.toolbar {
+  padding: 1em 3em 2em 3em;
+}
+
+.toolbar ion-input {
+  --background: #d8d8d8;
+  background-color: #d8d8d8;
+  text-align: left;
+  border: 0;
+  margin-top: 0.5em;
+  width: calc(100% - 15em);
+}
+
+.toolbar ion-button {
+  --background: #28292b;
+  position: absolute;
+  right: -15.125em; /* 15em plus 2px */
+  top: -4px;
+  height: 100%;
+  width: 15em;
+}
+
+ion-title.title {
+}
+
+.boldwhite {
+  font-weight: bold;
+  color: white;
+}
+
+.big {
+  font-size: 1.3em;
+}

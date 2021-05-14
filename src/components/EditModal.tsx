@@ -22,17 +22,18 @@ type Item = {
 
 type EditProps = {
   name: string,
+  currentText: string,
   doParentUpdate: () => void,
   finish: () => void,
 };
 
-const EditModal = ({ name, doParentUpdate, finish }: EditProps) => {
+const EditModal = ({ name, currentText, doParentUpdate, finish }: EditProps) => {
   // create & init store
   const [store, setStore] = useState<Database | null>(null);
   useEffect(() => { initDefaultStore(setStore); }, []);
 
   // text input field
-  const [text, setText] = useState<string>('');
+  const [text, setText] = useState<string>(currentText);
   const [submittedText, setSubmittedText] = useState<string>('');
   useEffect(() => {
     async function editItem() {
@@ -49,8 +50,8 @@ const EditModal = ({ name, doParentUpdate, finish }: EditProps) => {
   }, [submittedText]);
 
   return (
-    <div className="modalBox">
-      <IonTitle>Edit Task</IonTitle>
+    <div className="outer">
+      <IonTitle className="big">Edit Task</IonTitle>
       <IonGrid>
         <IonRow>
           <IonCol>
@@ -58,12 +59,14 @@ const EditModal = ({ name, doParentUpdate, finish }: EditProps) => {
               value={text}
               onIonChange={e => setText(e.detail.value!)}
               autoCorrect="on"
+              autofocus={true}
             ></IonTextarea>
           </IonCol>
         </IonRow>
         <IonRow>
           <IonCol>
             <IonButton
+              className={"edit save"}
               onClick={() => setSubmittedText(text)}
             >
               Save
@@ -71,6 +74,8 @@ const EditModal = ({ name, doParentUpdate, finish }: EditProps) => {
           </IonCol>
           <IonCol>
             <IonButton
+              className="edit"
+              fill="clear"
               onClick={finish}
             >
               Cancel

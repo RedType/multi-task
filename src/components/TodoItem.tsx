@@ -28,9 +28,10 @@ type Item = {
 type TodoProps = {
   name: string,
   doParentUpdate: () => void,
+  color: string,
 };
 
-const TodoItem = ({ name, doParentUpdate }: TodoProps) => {
+const TodoItem = ({ name, doParentUpdate, color }: TodoProps) => {
   // initialize store
   const [store, setStore] = useState<Database | null>(null);
   useEffect(() => { initDefaultStore(setStore); }, []); // do only once
@@ -82,35 +83,46 @@ const TodoItem = ({ name, doParentUpdate }: TodoProps) => {
   const doDismissEditModal = () => dismissEditModal();
   const [presentEditModal, dismissEditModal] = useIonModal(EditModal, {
     name: name,
+    currentText: text,
     doParentUpdate: doUpdate,
     finish: doDismissEditModal,
   });
 
-  const strike = checked ? {
-    textDecoration: 'line-through',
-  } : {};
+  const showModal = (e: any) => {
+    e.stopPropagation();
+    presentEditModal({
+      cssClass: "modalBox",
+    });
+  };
 
   return (
-    <IonItem key={name}>
+    <IonItem
+      key={name}
+      className={color}
+      button={true}
+      onClick={() => setChecked(!checked)}
+    >
       <IonCheckbox
         checked={checked}
-        onIonChange={e => setChecked(e.detail.checked)}
+        color="medium"
         slot="start"
       />
-      <IonLabel><span style={strike}>{text}</span></IonLabel>
+      <IonLabel><span className={checked ? "strike" : ""}>
+        {text}
+      </span></IonLabel>
       <IonButton
         slot="end"
         fill="clear"
-        onClick={() => presentEditModal()}
+        onClick={showModal}
       >
-        <IonIcon slot="icon-only" icon={pencil} />
+        <IonIcon slot="icon-only" color="dark" icon={pencil} />
       </IonButton>
       <IonButton
         slot="end"
         fill="clear"
-        onClick={() => setDelet(true)}
+        onClick={(e) => { e.stopPropagation(); setDelet(true); }}
       >
-        <IonIcon slot="icon-only" icon={trash} />
+        <IonIcon slot="icon-only" color="dark" icon={trash} />
       </IonButton>
     </IonItem>
   );

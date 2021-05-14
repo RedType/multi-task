@@ -1,0 +1,30 @@
+.modalBox {
+  --background: #f6f6f6;
+  --height: 15em;
+}
+
+div.outer {
+  text-align: center;
+  padding: 2em 4em 3em 4em;
+}
+
+ion-textarea {
+  border: 2px solid black;
+  text-align: left;
+}
+
+ion-button.edit {
+  color: black;
+  font-weight: bold;
+  width: 15em;
+}
+
+ion-button.save {
+  --background: linear-gradient(to right, rgb(20,165,170), rgb(65,198,133));
+  color: white;
+}
+
+.big {
+  font-size: 1.5em;
+  font-weight: bold;
+}

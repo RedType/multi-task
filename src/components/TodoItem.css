@@ -1,0 +1,20 @@
+ion-item {
+  --background-hover: #7e7e7e;
+  --background-hover-opacity: 100%;
+}
+
+ion-item.dark {
+  --background: #e2dcdc;
+}
+
+ion-item.light {
+  --background: #f6f4f5;
+}
+
+ion-checkbox {
+  --border-radius: 50%;
+}
+
+.strike {
+  text-decoration: line-through;
+}

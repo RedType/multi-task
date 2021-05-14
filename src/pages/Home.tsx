@@ -85,34 +85,36 @@ const Home = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonTitle>My To Do List</IonTitle>
-        <IonGrid><IonRow> 
-          <IonCol>
-            <IonInput
-              value={text}
-              onIonChange={e => setText(e.detail.value!)}
-              clearInput
-              autoCorrect="on"
-            ></IonInput>
-          </IonCol>
-          <IonCol>
+      <IonHeader><IonToolbar>
+        <div className="toolbar">
+          <IonTitle className={"boldwhite big title"}>
+            My To Do List
+          </IonTitle>
+          <IonInput
+            value={text}
+            onIonChange={e => setText(e.detail.value!)}
+            autoCorrect="on"
+            clearInput
+          >
             <IonButton
-              onClick={() => setSubmittedText(text)}
+              className="boldwhite"
               expand="full"
+              onClick={() => setSubmittedText(text)}
+              slot="end"
             >
               Add To List
             </IonButton>
-          </IonCol>
-        </IonRow></IonGrid>
-      </IonHeader>
+          </IonInput>
+        </div>
+      </IonToolbar></IonHeader>
       <IonContent fullscreen>
         <IonList>
-          {names.map(name =>
+          {names.map((name, i) =>
             <TodoItem
               key={name}
               name={name}
               doParentUpdate={doUpdate}
+              color={i % 2 == 0 ? "light" : "dark"}
             />
           )}
         </IonList>
